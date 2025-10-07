@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instructor Dashboard - DriveEasy</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .loading-overlay.active {
+      display: flex;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #f5a623;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      padding: 16px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      gap: 12px;
+      animation: slideInRight 0.3s ease-out;
+    }
+
+    @keyframes slideInRight {
+      from { transform: translateX(400px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .toast.show { display: flex; }
+    .toast.success { border-left: 4px solid #4caf50; }
+    .toast.error { border-left: 4px solid #f44336; }
+    .toast.info { border-left: 4px solid #2196F3; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(135deg, #f5a623 0%, #f7b946 100%);
+      padding: 15px 30px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .logo span {
+      color: #e85d04;
+    }
+
+    .welcome {
+      color: #333;
+      font-weight: 600;
+    }
+
+    .logout-btn {
+      background: #e85d04;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+
+    .logout-btn:hover {
+      background: #d04d04;
+      transform: scale(1.05);
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-card h3 {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .stat-card .value {
+      font-size: 36px;
+      font-weight: bold;
+      color: #f5a623;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      margin: 15px 0;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .card h2 {
+      margin-bottom: 20px;
+      color: #333;
+      border-bottom: 3px solid #f5a623;
+      padding-bottom: 10px;
+    }
+
+    .booking-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .booking-item {
+      background: #f9f9f9;
+      border-radius: 12px;
+      padding: 20px;
+      border-left: 4px solid #f5a623;
+      transition: all 0.3s;
+    }
+
+    .booking-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .booking-item h3 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+
+    .booking-detail {
+      display: flex;
+      align-items: center;
+      margin: 8px 0;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .booking-detail strong {
+      margin-right: 8px;
+      color: #333;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .status-approved {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #666;
+    }
+
+    .empty-state img {
+      width: 200px;
+      opacity: 0.5;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .booking-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+  </div>
+
+  <div class="toast" id="toast">
+    <span id="toastIcon"></span>
+    <div id="toastMessage"></div>
+  </div>
+
+  <header>
+    <div class="logo">Drive<span>Easy</span></div>
+    <div class="welcome" id="welcomeMsg">Welcome, Instructor</div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </header>
+
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Total Bookings</h3>
+        <div class="value" id="totalBookings">0</div>
+      </div>
+      <div class="stat-card">
+        <h3>Upcoming Classes</h3>
+        <div class="value" id="upcomingClasses">0</div>
+      </div>
+      <div class="stat-card">
+        <h3>Today's Classes</h3>
+        <div class="value" id="todayClasses">0</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📅 My Assigned Bookings</h2>
+      <div class="booking-grid" id="bookingsContainer">
+        <div class="empty-state">
+          <p>Loading bookings...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API = 'http://localhost:5000';
+    let currentUser = null;
+
+    function showLoading() {
+      document.getElementById('loadingOverlay').classList.add('active');
+    }
+
+    function hideLoading() {
+      document.getElementById('loadingOverlay').classList.remove('active');
+    }
+
+    function showToast(message, type = 'info') {
+      const toast = document.getElementById('toast');
+      const icon = document.getElementById('toastIcon');
+      const msg = document.getElementById('toastMessage');
+
+      const icons = { success: '✓', error: '✕', info: 'ℹ' };
+      toast.className = `toast show ${type}`;
+      icon.textContent = icons[type];
+      msg.textContent = message;
+
+      setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+
+    async function checkSession() {
+      try {
+        const res = await fetch(`${API}/check-session`, { credentials: 'include' });
+        const data = await res.json();
+
+        if (!data.loggedIn || data.role !== 'instructor') {
+          alert('Please login as instructor');
+          window.location.href = 'Home.html';
+          return false;
+        }
+
+        currentUser = data;
+        document.getElementById('welcomeMsg').textContent = `Welcome, ${data.name}!`;
+        return true;
+
+      } catch (err) {
+        console.error('Session check error:', err);
+        alert('Please login first');
+        window.location.href = 'Home.html';
+        return false;
+      }
+    }
+
+    async function loadBookings() {
+      showLoading();
+      try {
+        const res = await fetch(`${API}/instructor/bookings`, { credentials: 'include' });
+
+        if (!res.ok) {
+          throw new Error('Failed to fetch bookings');
+        }
+
+        const bookings = await res.json();
+        displayBookings(bookings);
+        updateStats(bookings);
+
+      } catch (err) {
+        console.error('Error loading bookings:', err);
+        showToast('Failed to load bookings', 'error');
+        document.getElementById('bookingsContainer').innerHTML = `
+          <div class="empty-state">
+            <p style="color: #f44336;">❌ Failed to load bookings</p>
+            <p style="font-size: 14px; margin-top: 10px;">Please refresh the page or contact admin</p>
+          </div>
+        `;
+      } finally {
+        hideLoading();
+      }
+    }
+
+    function displayBookings(bookings) {
+      const container = document.getElementById('bookingsContainer');
+
+      if (bookings.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <p style="font-size: 24px;">📭</p>
+            <p>No bookings assigned yet</p>
+            <p style="font-size: 14px; margin-top: 10px;">Bookings will appear here once admin assigns them to you</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '';
+
+      bookings.forEach(booking => {
+        const bookingDate = new Date(booking.date);
+        const formattedDate = bookingDate.toLocaleDateString('en-US', {
+          weekday: 'short',
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+
+        const card = document.createElement('div');
+        card.className = 'booking-item';
+        card.innerHTML = `
+          <h3>👤 ${booking.user_name}</h3>
+          <div class="booking-detail">
+            <strong>📧 Email:</strong> ${booking.user_email}
+          </div>
+          <div class="booking-detail">
+            <strong>📞 Phone:</strong> ${booking.contact}
+          </div>
+          <div class="booking-detail">
+            <strong>📍 Address:</strong> ${booking.address || 'N/A'}
+          </div>
+          <div class="booking-detail">
+            <strong>📅 Date:</strong> ${formattedDate}
+          </div>
+          <div class="booking-detail">
+            <strong>⏰ Time:</strong> ${booking.time_slot}
+          </div>
+          <div class="booking-detail">
+            <strong>🚗 License:</strong> ${booking.license_type || 'N/A'}
+          </div>
+          <span class="status-badge status-approved">✓ Approved</span>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function updateStats(bookings) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const todayBookings = bookings.filter(b => {
+        const bookingDate = new Date(b.date);
+        bookingDate.setHours(0, 0, 0, 0);
+        return bookingDate.getTime() === today.getTime();
+      });
+
+      const upcomingBookings = bookings.filter(b => {
+        const bookingDate = new Date(b.date);
+        bookingDate.setHours(0, 0, 0, 0);
+        return bookingDate.getTime() >= today.getTime();
+      });
+
+      document.getElementById('totalBookings').textContent = bookings.length;
+      document.getElementById('upcomingClasses').textContent = upcomingBookings.length;
+      document.getElementById('todayClasses').textContent = todayBookings.length;
+    }
+
+    async function logout() {
+      showLoading();
+      try {
+        await fetch(`${API}/logout`, {
+          method: 'POST',
+          credentials: 'include'
+        });
+
+        showToast('Logged out successfully', 'success');
+        setTimeout(() => window.location.href = 'Home.html', 1000);
+      } catch (err) {
+        console.error('Logout error:', err);
+        showToast('Logout failed', 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    window.onload = async () => {
+      const authenticated = await checkSession();
+      if (authenticated) {
+        await loadBookings();
+      }
+    };
+  </script>
+</body>
+</html>

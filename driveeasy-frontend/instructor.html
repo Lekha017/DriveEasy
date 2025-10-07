@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DriveEasy - Our Instructors</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .loading-overlay.active {
+      display: flex;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #f5a623;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      padding: 16px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      gap: 12px;
+      max-width: 400px;
+      animation: slideInRight 0.3s ease-out;
+    }
+
+    @keyframes slideInRight {
+      from { transform: translateX(400px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .toast.show { display: flex; }
+    .toast.success { border-left: 4px solid #4caf50; }
+    .toast.error { border-left: 4px solid #f44336; }
+    .toast.info { border-left: 4px solid #2196F3; }
+
+    header {
+      background: linear-gradient(135deg, #f5a623 0%, #f7b946 100%);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 50px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    header .logo {
+      font-size: 28px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    header .logo span {
+      color: #e85d04;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 10px;
+    }
+
+    nav ul li a {
+      text-decoration: none;
+      color: #333;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 6px;
+      transition: all 0.3s;
+    }
+
+    nav ul li a:hover {
+      background: rgba(255,255,255,0.3);
+      transform: translateY(-2px);
+    }
+
+    nav ul li a.active {
+      background: rgba(255,255,255,0.5);
+    }
+
+    .login-btn {
+      background: #e85d04;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      color: white;
+      transition: all 0.3s;
+    }
+
+    .login-btn:hover {
+      background: #d04d04;
+      transform: scale(1.05);
+    }
+
+    .instructor-section {
+      text-align: center;
+      padding: 60px 20px;
+      flex: 1;
+    }
+
+    .instructor-section h2 {
+      font-size: 42px;
+      margin-bottom: 15px;
+      color: #222;
+      animation: fadeInDown 0.6s ease-out;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .instructor-section p {
+      font-size: 18px;
+      margin-bottom: 50px;
+      color: #555;
+      animation: fadeInUp 0.6s ease-out 0.2s both;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .filter-controls {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 10px 24px;
+      border: 2px solid #f5a623;
+      background: white;
+      color: #333;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .filter-btn:hover {
+      background: #f5a623;
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .filter-btn.active {
+      background: #f5a623;
+      color: white;
+    }
+
+    .instructors {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      transition: all 0.3s;
+      animation: fadeInUp 0.6s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, #f5a623, #f57c00);
+    }
+
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    }
+
+    .card.hidden {
+      display: none;
+    }
+
+    .card img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 20px;
+      border: 4px solid #f5a623;
+      box-shadow: 0 4px 12px rgba(245, 166, 35, 0.3);
+    }
+
+    .card h3 {
+      font-size: 22px;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .card p {
+      font-size: 14px;
+      margin-bottom: 8px;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .card .experience {
+      font-weight: 600;
+      color: #f5a623;
+      margin: 15px 0;
+    }
+
+    .card .license {
+      font-size: 13px;
+      color: #999;
+      margin-bottom: 15px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: bold;
+      margin: 15px 0;
+    }
+
+    .available {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .busy {
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #e85d04 0%, #f57c00 100%);
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s;
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(232, 93, 4, 0.4);
+    }
+
+    .btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    footer {
+      background: linear-gradient(135deg, #f5a623 0%, #f7b946 100%);
+      padding: 25px 50px;
+      text-align: center;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+      margin-top: auto;
+    }
+
+    footer p {
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    footer .footer-info {
+      display: flex;
+      gap: 30px;
+      font-size: 14px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .loading {
+      font-size: 18px;
+      color: #666;
+      padding: 50px;
+      text-align: center;
+    }
+
+    .error-message {
+      color: #f44336;
+      font-weight: bold;
+      text-align: center;
+      padding: 40px 20px;
+      background: white;
+      border-radius: 12px;
+      margin: 20px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .error-message button {
+      margin-top: 20px;
+      padding: 12px 30px;
+      background: #f5a623;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 60px 20px;
+      color: #666;
+      font-size: 18px;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 15px 20px;
+      }
+
+      nav ul {
+        display: none;
+      }
+
+      .instructor-section h2 {
+        font-size: 32px;
+      }
+
+      .instructors {
+        grid-template-columns: 1fr;
+      }
+
+      footer {
+        padding: 20px;
+      }
+
+      .footer-info {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+  </div>
+
+  <div class="toast" id="toast">
+    <span id="toastIcon"></span>
+    <div id="toastMessage"></div>
+  </div>
+
+  <header>
+    <div class="logo">Drive<span>Easy</span></div>
+    <nav>
+      <ul>
+        <li><a href="Home.html">Home</a></li>
+        <li><a href="book.html">Book Class</a></li>
+        <li><a href="instructor.html" class="active">Instructors</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </nav>
+    <button class="login-btn" onclick="window.location.href='Home.html'">Register/Login</button>
+  </header>
+
+  <section class="instructor-section">
+    <h2>Meet Our Skilled Instructors</h2>
+    <p>Certified, Experienced & Dedicated to Helping You Drive Confidently</p>
+
+    <div class="filter-controls">
+      <button class="filter-btn active" onclick="filterInstructors('all')">All Instructors</button>
+      <button class="filter-btn" onclick="filterInstructors('available')">Available Only</button>
+      <button class="filter-btn" onclick="filterInstructors('busy')">Busy</button>
+    </div>
+
+    <div class="instructors" id="instructorContainer">
+      <div class="loading">Loading instructors...</div>
+    </div>
+  </section>
+
+  <footer>
+    <p>2025 DriveEasy. All rights reserved</p>
+    <div class="footer-info">
+      <span>Call us: +91 080-1234-8790</span>
+      <span>Email: driveeasy12@gmail.com</span>
+    </div>
+  </footer>
+
+  <script>
+let allInstructors = [];
+let currentFilter = 'all';
+
+function showLoading() {
+  document.getElementById('loadingOverlay').classList.add('active');
+}
+
+function hideLoading() {
+  document.getElementById('loadingOverlay').classList.remove('active');
+}
+
+function showToast(message, type = 'info') {
+  const toast = document.getElementById('toast');
+  const icon = document.getElementById('toastIcon');
+  const msg = document.getElementById('toastMessage');
+
+  const icons = { success: '✓', error: '✕', info: 'ℹ' };
+
+  toast.className = `toast show ${type}`;
+  icon.textContent = icons[type];
+  msg.textContent = message;
+
+  setTimeout(() => toast.classList.remove('show'), 4000);
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+  showLoading();
+  await loadInstructors();
+  hideLoading();
+});
+
+async function loadInstructors() {
+  const container = document.getElementById("instructorContainer");
+  
+  try {
+    console.log("Fetching instructors from database...");
+    const res = await fetch("http://localhost:5000/instructors");
+    
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+    
+    allInstructors = await res.json();
+    console.log("Instructors loaded:", allInstructors);
+    
+    if (allInstructors.length === 0) {
+      container.innerHTML = '<div class="no-results">No instructors available at the moment.</div>';
+      return;
+    }
+    
+    displayInstructors(allInstructors);
+    
+  } catch (err) {
+    console.error("Error loading instructors:", err);
+    container.innerHTML = `
+      <div class="error-message">
+        <h3>Failed to load instructors</h3>
+        <p>Please make sure:</p>
+        <ul style="text-align: left; display: inline-block; margin-top: 10px;">
+          <li>Backend server is running (http://localhost:5000)</li>
+          <li>Database is connected properly</li>
+          <li>Instructors exist in the database</li>
+        </ul>
+        <br>
+        <button onclick="location.reload()">Try Again</button>
+      </div>
+    `;
+    showToast('Failed to load instructors. Please check your connection.', 'error');
+  }
+}
+
+function displayInstructors(instructors) {
+  const container = document.getElementById("instructorContainer");
+  container.innerHTML = '';
+  
+  if (instructors.length === 0) {
+    container.innerHTML = '<div class="no-results">No instructors match the selected filter.</div>';
+    return;
+  }
+  
+  instructors.forEach((instructor, index) => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.style.animationDelay = `${index * 0.1}s`;
+    card.dataset.status = instructor.status;
+    
+    const fallbackImage = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect fill='%23f5a623' width='120' height='120' rx='60'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='50' fill='white' font-weight='bold'%3E${instructor.name.charAt(0)}%3C/text%3E%3C/svg%3E`;
+    
+    card.innerHTML = `
+      <img src="${instructor.image_url || fallbackImage}" 
+           alt="${instructor.name}" 
+           onerror="this.src='${fallbackImage}'">
+      <h3>${instructor.name}</h3>
+      <p class="experience">${instructor.experience}</p>
+      <p class="license">License: ${instructor.license_id}</p>
+      <span class="status-badge ${instructor.status}">
+        ${instructor.status === 'available' ? '✓ Available' : '✗ Busy'}
+      </span>
+      <button class="btn" onclick="bookInstructor('${instructor.name}', ${instructor.id}, '${instructor.status}')">
+        ${instructor.status === 'available' ? 'Book Now' : 'View Schedule'}
+      </button>
+    `;
+    
+    container.appendChild(card);
+  });
+}
+
+function filterInstructors(filter) {
+  currentFilter = filter;
+  
+  // Update button states
+  document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  let filtered = allInstructors;
+  
+  if (filter === 'available') {
+    filtered = allInstructors.filter(i => i.status === 'available');
+  } else if (filter === 'busy') {
+    filtered = allInstructors.filter(i => i.status === 'busy');
+  }
+  
+  displayInstructors(filtered);
+}
+
+function bookInstructor(name, id, status) {
+  if (status === 'available') {
+    const confirmBook = confirm(`Book a class with ${name}?\n\nClick OK to go to the booking page.`);
+    if (confirmBook) {
+      window.location.href = `book.html?instructor_id=${id}`;
+    }
+  } else {
+    showToast(`${name} is currently busy. You can book without selecting an instructor, or choose another available instructor.`, 'info');
+  }
+}
+</script>
+
+</body>
+</html>

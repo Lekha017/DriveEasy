@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DriveEasy - About Us</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #fff;
+        }
+
+        header {
+            background: #f5a623;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .logo span {
+            color: #e85d04;
+        }
+
+        nav {
+            display: flex;
+            gap: 30px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .login-btn {
+            background: #e85d04;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .about-banner {
+            text-align: center;
+            background-color: #fff;
+            padding: 50px 20px 30px;
+        }
+
+        .about-banner h1 {
+            color: #f59e0b;
+            font-size: 42px;
+            margin: 0;
+        }
+
+        .driveeasy-logo {
+            text-align: center;
+            font-size: 40px;
+            font-weight: bold;
+            padding: 30px 20px;
+        }
+
+        .driveeasy-logo span {
+            color: #f59e0b;
+        }
+
+        .features {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .feature {
+            background-color: #f9f9f9;
+            border-radius: 15px;
+            width: 250px;
+            margin: 15px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 25px 15px;
+            transition: transform 0.3s;
+        }
+
+        .feature:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        .feature h3 {
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .feature p {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .testimonials {
+            text-align: center;
+            margin-top: 40px;
+            padding: 40px 20px;
+            background-color: #f9f9f9;
+        }
+
+        .testimonials h2 {
+            font-weight: bold;
+            margin-bottom: 30px;
+            font-size: 32px;
+            color: #333;
+        }
+
+        .testimonial {
+            font-style: italic;
+            color: #555;
+            margin: 20px auto;
+            max-width: 600px;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .testimonial strong {
+            font-style: normal;
+            color: #f59e0b;
+        }
+
+        footer {
+            background: #f5a623;
+            padding: 20px;
+            text-align: center;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo">Drive<span>Easy</span></div>
+        <nav>
+            <a href="Home.html">Home</a>
+            <a href="book.html">Book Class</a>
+            <a href="instructor.html">Instructors</a>
+            <a href="about.html">About</a>
+        </nav>
+        <button class="login-btn" onclick="window.location.href='Home.html'">Login</button>
+    </header>
+
+    <div class="about-banner">
+        <h1>About Us</h1>
+    </div>
+
+    <div class="driveeasy-logo">Drive<span>Easy</span></div>
+
+    <div class="features">
+        <div class="feature">
+            <div class="feature-icon">🎓</div>
+            <h3>WIDE EXPERIENCE</h3>
+            <p>Our certified instructors bring years of practical driving experience to ensure learners gain real-world
+                skills and confidence behind the wheel.</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">😊</div>
+            <h3>NO STRESS</h3>
+            <p>Forget the hassle of confusing schedules. DriveEasy offers a clear 10-day plan with your choice of
+                morning or evening sessions.</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">💻</div>
+            <h3>BOOK ONLINE</h3>
+            <p>Easily check instructor availability and book your slot. If your preferred instructor is taken, we guide
+                you to another without delay.</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">✅</div>
+            <h3>CHECK INSTRUCTOR AVAILABILITY</h3>
+            <p>Know what's free before you book—no surprises.</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">🔄</div>
+            <h3>AUTO-SUGGEST IF INSTRUCTOR IS BOOKED</h3>
+            <p>We'll guide you to the next available instructor instantly.</p>
+        </div>
+    </div>
+
+    <div class="testimonials">
+        <h2>★ TESTIMONIALS</h2>
+        <p class="testimonial">"The structure was clear, and the booking was super easy. I finished fluently and passed
+            confidently!"<br><strong>— Riya Sharma</strong></p>
+        <p class="testimonial">"DriveEasy's instructor was patient and encouraging. Highly recommend!"<br><strong>— Neel
+                Kapoor</strong></p>
+    </div>
+
+    <footer>
+        <p>© 2025 DriveEasy. All rights reserved | 📞 +91 080-1234-8790 | 📧 driveeasy12@gmail.com</p>
+    </footer>
+</body>
+
+</html>

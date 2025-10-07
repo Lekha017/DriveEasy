@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Your Class - DriveEasy</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      position: relative;
+    }
+
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: white;
+      padding: 16px 24px;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 320px;
+      animation: slideInRight 0.3s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+
+    @keyframes slideInRight {
+      from { transform: translateX(450px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes slideOutRight {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(450px); opacity: 0; }
+    }
+
+    .toast::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+    }
+
+    .toast.success::before { background: #4caf50; }
+    .toast.error::before { background: #f44336; }
+    .toast.info::before { background: #2196F3; }
+    .toast.warning::before { background: #ff9800; }
+
+    .toast-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .toast-content {
+      flex: 1;
+    }
+
+    .toast-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #333;
+    }
+
+    .toast-message {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .toast-close {
+      cursor: pointer;
+      font-size: 22px;
+      color: #999;
+      flex-shrink: 0;
+      padding: 0 5px;
+      line-height: 1;
+    }
+
+    .toast-close:hover {
+      color: #333;
+    }
+
+    header {
+      background: linear-gradient(135deg, #f5a623 0%, #f7b946 100%);
+      padding: 15px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .logo span {
+      color: #e85d04;
+    }
+
+    nav {
+      display: flex;
+      gap: 10px;
+    }
+
+    nav a {
+      padding: 8px 16px;
+      text-decoration: none;
+      color: #333;
+      font-weight: 600;
+      border-radius: 6px;
+      transition: all 0.3s;
+    }
+
+    nav a:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    nav a.active {
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn-secondary {
+      background: white;
+      border: 2px solid #e85d04;
+      color: #e85d04;
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+
+    .btn-secondary:hover {
+      background: #e85d04;
+      color: white;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .booking-container {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 30px;
+      align-items: start;
+    }
+
+    .form-card {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      animation: fadeInUp 0.5s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .form-header {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .form-header h1 {
+      font-size: 32px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .form-header p {
+      color: #666;
+      font-size: 16px;
+    }
+
+    .progress-bar {
+      height: 4px;
+      background: #e0e0e0;
+      border-radius: 2px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #f5a623, #e85d04);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .form-group label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      color: #333;
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .label-icon {
+      font-size: 18px;
+    }
+
+    .required {
+      color: #f44336;
+      font-size: 12px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      font-size: 15px;
+      transition: all 0.3s;
+      background: #f9f9f9;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+      background: white;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-group input:valid,
+    .form-group select:valid {
+      border-color: #4caf50;
+    }
+
+    .input-hint {
+      font-size: 13px;
+      color: #999;
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .time-slot-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .time-slot-option {
+      display: none;
+    }
+
+    .time-slot-label {
+      padding: 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: #f9f9f9;
+      font-weight: 600;
+    }
+
+    .time-slot-label:hover {
+      border-color: #667eea;
+      background: rgba(102, 126, 234, 0.05);
+    }
+
+    .time-slot-option:checked + .time-slot-label {
+      border-color: #667eea;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .license-type-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .license-option {
+      display: none;
+    }
+
+    .license-label {
+      padding: 20px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: #f9f9f9;
+    }
+
+    .license-icon {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .license-label:hover {
+      border-color: #f5a623;
+      background: rgba(245, 166, 35, 0.05);
+    }
+
+    .license-option:checked + .license-label {
+      border-color: #f5a623;
+      background: linear-gradient(135deg, #f5a623 0%, #f7b946 100%);
+      color: white;
+    }
+
+    .instructor-select {
+      position: relative;
+    }
+
+    .instructor-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #e8f5e9;
+      color: #2e7d32;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 18px;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      margin-top: 10px;
+    }
+
+    .submit-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    }
+
+    .submit-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .info-sidebar {
+      position: sticky;
+      top: 100px;
+    }
+
+    .info-card {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      margin-bottom: 20px;
+      animation: fadeInUp 0.5s ease-out 0.2s both;
+    }
+
+    .info-card h3 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .info-item {
+      display: flex;
+      align-items: start;
+      gap: 12px;
+      margin-bottom: 15px;
+      padding: 12px;
+      background: #f9f9f9;
+      border-radius: 10px;
+    }
+
+    .info-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .info-text {
+      flex: 1;
+    }
+
+    .info-text strong {
+      display: block;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .info-text span {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .feature-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .feature-list li {
+      padding: 10px 0;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #666;
+    }
+
+    .feature-list li:last-child {
+      border-bottom: none;
+    }
+
+    .feature-icon {
+      color: #4caf50;
+      font-size: 18px;
+    }
+
+    @media (max-width: 968px) {
+      .booking-container {
+        grid-template-columns: 1fr;
+      }
+
+      .info-sidebar {
+        position: static;
+      }
+
+      nav {
+        display: none;
+      }
+
+      header {
+        padding: 15px 20px;
+      }
+
+      .form-card {
+        padding: 25px;
+      }
+
+      .time-slot-grid,
+      .license-type-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .form-header h1 {
+        font-size: 24px;
+      }
+
+      .form-card {
+        padding: 20px;
+      }
+
+      .info-card {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="toast-container" id="toastContainer"></div>
+
+  <header>
+    <div class="logo">Drive<span>Easy</span></div>
+    <nav>
+      <a href="Home.html">Home</a>
+      <a href="userdashboard.html">Dashboard</a>
+      <a href="book.html" class="active">Book Class</a>
+      <a href="instructor.html">Instructors</a>
+      <a href="about.html">About</a>
+    </nav>
+    <div class="nav-buttons">
+      <a href="userdashboard.html" class="btn-secondary">My Bookings</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="booking-container">
+      <div class="form-card">
+        <div class="form-header">
+          <h1>📅 Book Your Driving Class</h1>
+          <p>Fill in the details below to schedule your lesson</p>
+        </div>
+
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressBar"></div>
+        </div>
+
+        <form id="bookingForm">
+          <div class="form-group">
+            <label>
+              <span class="label-icon">👤</span>
+              Full Name
+              <span class="required">*</span>
+            </label>
+            <input type="text" id="studentName" placeholder="Enter your full name" required>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <span class="label-icon">📞</span>
+              Phone Number
+              <span class="required">*</span>
+            </label>
+            <input type="tel" id="phone" placeholder="10-digit mobile number" maxlength="10" required>
+            <div class="input-hint">ℹ️ We'll call you to confirm the booking</div>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <span class="label-icon">📍</span>
+              Pickup Address
+              <span class="required">*</span>
+            </label>
+            <input type="text" id="address" placeholder="Enter your pickup location" required>
+            <div class="input-hint">ℹ️ Where should the instructor pick you up?</div>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <span class="label-icon">📅</span>
+              Start Date
+              <span class="required">*</span>
+            </label>
+            <input type="date" id="startDate" required>
+            <div class="input-hint">ℹ️ Your 10-day course will start from this date</div>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <span class="label-icon">⏰</span>
+              Preferred Time Slot
+              <span class="required">*</span>
+            </label>
+            <div class="time-slot-grid">
+              <div>
+                <input type="radio" name="timeSlot" value="Morning (9 AM - 12 PM)" id="morning" class="time-slot-option" required>
+                <label for="morning" class="time-slot-label">
+                  ☀️ Morning<br>
+                  <small>9 AM - 12 PM</small>
+                </label>
+              </div>
+              <div>
+                <input type="radio" name="timeSlot" value="Evening (4 PM - 7 PM)" id="evening" class="time-slot-option" required>
+                <label for="evening" class="time-slot-label">
+                  🌙 Evening<br>
+                  <small>4 PM - 7 PM</small>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <span class="label-icon">🚗</span>
+              License Type
+              <span class="required">*</span>
+            </label>
+            <div class="license-type-grid">
+              <div>
+                <input type="radio" name="licenseType" value="Two Wheeler" id="twoWheeler" class="license-option" required>
+                <label for="twoWheeler" class="license-label">
+                  <div class="license-icon">🛵</div>
+                  <strong>Two Wheeler</strong>
+                  <div style="font-size: 12px; margin-top: 5px;">Bike / Scooter</div>
+                </label>
+              </div>
+              <div>
+                <input type="radio" name="licenseType" value="Four Wheeler" id="fourWheeler" class="license-option" required>
+                <label for="fourWheeler" class="license-label">
+                  <div class="license-icon">🚗</div>
+                  <strong>Four Wheeler</strong>
+                  <div style="font-size: 12px; margin-top: 5px;">Car</div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <span class="label-icon">👨‍🏫</span>
+              Select Instructor
+              <span class="instructor-badge">Optional</span>
+            </label>
+            <select id="instructorId" class="instructor-select">
+              <option value="">Loading instructors...</option>
+            </select>
+            <div class="input-hint">ℹ️ Admin will assign one if you don't select</div>
+          </div>
+
+          <button type="submit" class="submit-btn" id="submitBtn">
+            🎯 Confirm Booking
+          </button>
+        </form>
+      </div>
+
+      <div class="info-sidebar">
+        <div class="info-card">
+          <h3>📋 Booking Summary</h3>
+          <div class="info-item">
+            <div class="info-icon">📅</div>
+            <div class="info-text">
+              <strong>Course Duration</strong>
+              <span>10 consecutive days</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-icon">⏱️</div>
+            <div class="info-text">
+              <strong>Daily Session</strong>
+              <span>3 hours per day</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-icon">✅</div>
+            <div class="info-text">
+              <strong>What's Included</strong>
+              <span>Pickup/drop, fuel, instructor</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <h3>✨ Why Choose DriveEasy?</h3>
+          <ul class="feature-list">
+            <li>
+              <span class="feature-icon">✓</span>
+              Certified & experienced instructors
+            </li>
+            <li>
+              <span class="feature-icon">✓</span>
+              Flexible morning & evening slots
+            </li>
+            <li>
+              <span class="feature-icon">✓</span>
+              Door-to-door pickup service
+            </li>
+            <li>
+              <span class="feature-icon">✓</span>
+              Modern, well-maintained vehicles
+            </li>
+            <li>
+              <span class="feature-icon">✓</span>
+              Fast admin approval process
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const API = 'http://localhost:5000';
+
+    function showToast(title, message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+
+      const icons = {
+        success: '✅',
+        error: '❌',
+        info: 'ℹ️',
+        warning: '⚠️'
+      };
+
+      toast.innerHTML = `
+        <div class="toast-icon">${icons[type]}</div>
+        <div class="toast-content">
+          <div class="toast-title">${title}</div>
+          <div class="toast-message">${message}</div>
+        </div>
+        <div class="toast-close" onclick="this.parentElement.remove()">×</div>
+      `;
+
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.animation = 'slideOutRight 0.3s ease-out';
+        setTimeout(() => toast.remove(), 300);
+      }, 5000);
+    }
+
+    // Update progress bar based on form completion
+    function updateProgress() {
+      const form = document.getElementById('bookingForm');
+      const inputs = form.querySelectorAll('input[required], select[required]');
+      const filled = Array.from(inputs).filter(input => {
+        if (input.type === 'radio') {
+          return form.querySelector(`input[name="${input.name}"]:checked`);
+        }
+        return input.value.trim() !== '';
+      }).length;
+
+      const total = Array.from(new Set(Array.from(inputs).map(input =>
+        input.type === 'radio' ? input.name : input.id
+      ))).length;
+
+      const progress = (filled / total) * 100;
+      document.getElementById('progressBar').style.width = progress + '%';
+    }
+
+    window.onload = async () => {
+      try {
+        const session = await fetch(`${API}/check-session`, { credentials: 'include' });
+        const data = await session.json();
+
+        if (!data.loggedIn) {
+          showToast('Login Required', 'Please login to book a class', 'warning');
+          setTimeout(() => window.location.href = 'Home.html', 2000);
+          return;
+        }
+
+        await loadInstructors();
+
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('startDate').min = today;
+
+        // Add progress tracking
+        const form = document.getElementById('bookingForm');
+        form.addEventListener('input', updateProgress);
+        form.addEventListener('change', updateProgress);
+
+      } catch (err) {
+        console.error('Session check error:', err);
+        showToast('Error', 'Please login to continue', 'error');
+        setTimeout(() => window.location.href = 'Home.html', 2000);
+      }
+    };
+
+    async function loadInstructors() {
+      try {
+        const res = await fetch(`${API}/instructors`);
+        const instructors = await res.json();
+        const select = document.getElementById('instructorId');
+
+        select.innerHTML = '<option value="">Choose instructor (or skip)</option>';
+
+        instructors.forEach(inst => {
+          const option = document.createElement('option');
+          option.value = inst.id;
+          const status = inst.status === 'available' ? '✅ Available' : '⏳ Busy';
+          option.textContent = `${inst.name} - ${inst.experience} (${status})`;
+          if (inst.status === 'busy') option.disabled = true;
+          select.appendChild(option);
+        });
+      } catch (err) {
+        console.error('Error loading instructors:', err);
+        showToast('Warning', 'Could not load instructors', 'warning');
+      }
+    }
+
+    document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const phone = document.getElementById('phone').value.trim();
+      if (!/^\d{10}$/.test(phone)) {
+        showToast('Invalid Phone', 'Please enter a valid 10-digit phone number', 'error');
+        return;
+      }
+
+      const timeSlot = document.querySelector('input[name="timeSlot"]:checked');
+      const licenseType = document.querySelector('input[name="licenseType"]:checked');
+
+      if (!timeSlot || !licenseType) {
+        showToast('Missing Selection', 'Please select time slot and license type', 'warning');
+        return;
+      }
+
+      const data = {
+        studentName: document.getElementById('studentName').value.trim(),
+        phone: phone,
+        address: document.getElementById('address').value.trim(),
+        startDate: document.getElementById('startDate').value,
+        timeSlot: timeSlot.value,
+        licenseType: licenseType.value,
+        instructorId: document.getElementById('instructorId').value || null
+      };
+
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.innerHTML = '⏳ Booking...';
+
+      try {
+        const res = await fetch(`${API}/bookings`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+          showToast('Success!', result.message, 'success');
+          e.target.reset();
+          document.getElementById('progressBar').style.width = '0%';
+          const today = new Date().toISOString().split('T')[0];
+          document.getElementById('startDate').min = today;
+
+          setTimeout(() => {
+            window.location.href = 'userdashboard.html';
+          }, 2000);
+        } else {
+          showToast('Booking Failed', result.error || 'Please try again', 'error');
+        }
+      } catch (err) {
+        showToast('Connection Error', 'Unable to connect to server', 'error');
+        console.error(err);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '🎯 Confirm Booking';
+      }
+    });
+
+    // Phone number validation
+    document.getElementById('phone').addEventListener('input', function (e) {
+      this.value = this.value.replace(/\D/g, '');
+    });
+  </script>
+</body>
+
+</html>
