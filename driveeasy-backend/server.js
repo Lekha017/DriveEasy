@@ -28,11 +28,13 @@ const config = {
     secret: process.env.SESSION_SECRET || 'driveeasy-secret-key-2025-change-in-production',
     resave: false,
     saveUninitialized: false,
+    proxy: process.env.NODE_ENV === 'production',
     cookie: {
       secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000,
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      domain: process.env.NODE_ENV === 'production' ? '.railway.app' : undefined
     },
     name: 'driveeasy.sid'
   },
