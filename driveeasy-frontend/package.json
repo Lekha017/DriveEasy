@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "DriveEasy Frontend",
   "scripts": {
-    "start": "npx serve -s . -l 3000"
+    "start": "npx serve . -l 3000 --no-request-logging"
   },
   "dependencies": {
     "serve": "^14.2.1"
