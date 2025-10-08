@@ -11,23 +11,23 @@ const app = express();
 const config = {
   port: process.env.PORT || 5000,
   db: {
-    host: 'localhost',
-    user: 'root',
-    password: 'pallavi',
-    database: 'driveeasy',
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || 'pallavi',
+    database: process.env.DB_NAME || 'driveeasy',
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
   },
   session: {
-    secret: 'driveeasy-secret-key-2025-change-in-production',
+    secret: process.env.SESSION_SECRET || 'driveeasy-secret-key-2025-change-in-production',
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false,
+      secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000,
-      sameSite: 'lax'
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
     },
     name: 'driveeasy.sid'
   },
@@ -67,6 +67,11 @@ app.use(cors({
       'http://127.0.0.1:5502',
       'http://localhost:5502'
     ];
+
+    // Add production frontend URL from environment variable
+    if (process.env.FRONTEND_URL) {
+      allowedOrigins.push(process.env.FRONTEND_URL);
+    }
 
     // Allow requests with no origin (like Postman)
     if (!origin) return callback(null, true);
