@@ -489,7 +489,7 @@ async function loadInstructors() {
   
   try {
     console.log("Fetching instructors from database...");
-    const res = await fetch("http://localhost:5000/instructors");
+    const res = await fetch("https://backend-production-e9e9.up.railway.app/instructors");
     
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`);
@@ -512,7 +512,7 @@ async function loadInstructors() {
         <h3>Failed to load instructors</h3>
         <p>Please make sure:</p>
         <ul style="text-align: left; display: inline-block; margin-top: 10px;">
-          <li>Backend server is running (http://localhost:5000)</li>
+          <li>Backend server is running (https://backend-production-e9e9.up.railway.app)</li>
           <li>Database is connected properly</li>
           <li>Instructors exist in the database</li>
         </ul>

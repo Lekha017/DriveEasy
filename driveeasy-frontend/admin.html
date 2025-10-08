@@ -579,7 +579,7 @@
 
     async function loadStats() {
       try {
-        const res = await fetch("http://localhost:5000/stats", { credentials: "include" });
+        const res = await fetch("https://backend-production-e9e9.up.railway.app/stats", { credentials: "include" });
         const stats = await res.json();
 
         document.getElementById("activeLearners").textContent = stats.activeLearners;
@@ -595,7 +595,7 @@
     async function loadBookings() {
       showLoading();
       try {
-        const res = await fetch("http://localhost:5000/admin/bookings", { credentials: "include" });
+        const res = await fetch("https://backend-production-e9e9.up.railway.app/admin/bookings", { credentials: "include" });
         const bookings = await res.json();
         const tbody = document.querySelector("#bookingsTable tbody");
         tbody.innerHTML = "";
@@ -635,7 +635,7 @@
     async function loadUsers() {
       showLoading();
       try {
-        const res = await fetch("http://localhost:5000/users", { credentials: "include" });
+        const res = await fetch("https://backend-production-e9e9.up.railway.app/users", { credentials: "include" });
         const users = await res.json();
         const tbody = document.querySelector("#usersTable tbody");
         tbody.innerHTML = "";
@@ -667,7 +667,7 @@
     async function loadInstructors() {
       showLoading();
       try {
-        const res = await fetch("http://localhost:5000/instructors", { credentials: "include" });
+        const res = await fetch("https://backend-production-e9e9.up.railway.app/instructors", { credentials: "include" });
         const instructors = await res.json();
         const tbody = document.querySelector("#instructorsTable tbody");
         tbody.innerHTML = "";
@@ -702,7 +702,7 @@
       document.getElementById("bookingDetails").textContent =
         `User: ${userName} | Date: ${new Date(date).toLocaleDateString()} | Time: ${timeSlot}`;
 
-      const res = await fetch("http://localhost:5000/instructors", { credentials: "include" });
+      const res = await fetch("https://backend-production-e9e9.up.railway.app/instructors", { credentials: "include" });
       const instructors = await res.json();
 
       const select = document.getElementById("instructorAssign");
@@ -728,7 +728,7 @@
 
       showLoading();
       try {
-        const res = await fetch(`http://localhost:5000/admin/bookings/${currentBookingId}`, {
+        const res = await fetch(`https://backend-production-e9e9.up.railway.app/admin/bookings/${currentBookingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -753,7 +753,7 @@
 
       showLoading();
       try {
-        const res = await fetch(`http://localhost:5000/admin/bookings/${bookingId}`, {
+        const res = await fetch(`https://backend-production-e9e9.up.railway.app/admin/bookings/${bookingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -779,7 +779,7 @@
 
     function logout() {
       showLoading();
-      fetch("http://localhost:5000/logout", {
+      fetch("https://backend-production-e9e9.up.railway.app/logout", {
         method: "POST",
         credentials: "include"
       }).then(() => {
