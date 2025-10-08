@@ -7,6 +7,11 @@ const rateLimit = require('express-rate-limit');
 
 const app = express();
 
+// Trust proxy - Required for Railway/production deployment
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
 // ==================== CONFIGURATION ====================
 const config = {
   port: process.env.PORT || 5000,
